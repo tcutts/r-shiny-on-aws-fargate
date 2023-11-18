@@ -8,22 +8,20 @@ export class RShinyOnAwsStack extends cdk.Stack {
     super(scope, id, props);
     this.templateOptions.description = 'R Shiny on AWS';
 
-    const vpc = new cdk.aws_ec2.Vpc(this, 'RShinyOnAwsVpc', {
+    const vpc = new cdk.aws_ec2.Vpc(this, 'RShinyVpc', {
       maxAzs: 3,
       natGateways: 1,
     });
 
-    const cluster = new ecs.Cluster(this, 'RShinyOnAwsCluster', {
-      vpc
-    });
+    const cluster = new ecs.Cluster(this, 'RShinyCluster', { vpc });
 
-    const taskDefinition = new ecs.FargateTaskDefinition(this, 'RShinyOnAwsTask');
-    taskDefinition.addContainer('RShinyOnAwsContainer', {
+    const taskDefinition = new ecs.FargateTaskDefinition(this, 'RShinyTask');
+    taskDefinition.addContainer('RShinyContainer', {
       image: ecs.ContainerImage.fromAsset('containers/shinyapp'),
       portMappings: [{ containerPort: 3838 }]
     });
 
-    const service = new ecs_patterns.ApplicationLoadBalancedFargateService(this, 'RShinyOnAwsService', {
+    const service = new ecs_patterns.ApplicationLoadBalancedFargateService(this, 'RShinyService', {
       cluster,
       taskDefinition,
       publicLoadBalancer: true,
@@ -35,5 +33,5 @@ export class RShinyOnAwsStack extends cdk.Stack {
       scaleInCooldown: cdk.Duration.minutes(2),
       scaleOutCooldown: cdk.Duration.seconds(30)
     });
-  } 
+  }
 }
