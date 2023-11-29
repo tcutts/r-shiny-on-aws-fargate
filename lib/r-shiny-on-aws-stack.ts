@@ -2,13 +2,13 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as ecs_patterns from 'aws-cdk-lib/aws-ecs-patterns';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
 
 export class RShinyOnAwsStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
-    this.templateOptions.description = 'R Shiny on AWS';
 
-    const vpc = new cdk.aws_ec2.Vpc(this, 'RShinyVpc', {
+    const vpc = new ec2.Vpc(this, 'RShinyVpc', {
       maxAzs: 3,
       natGateways: 1,
     });
@@ -25,6 +25,18 @@ export class RShinyOnAwsStack extends cdk.Stack {
       cluster,
       taskDefinition,
       publicLoadBalancer: true,
+      openListener: false,
+    });
+
+    const accessCIDR = new cdk.CfnParameter(this, 'AccessCIDR', {
+      type: 'String',
+      description: 'The CIDR block to allow access from',
+      default: '0.0.0.0/0',
+      allowedPattern: '((\\d{1,3})\\.){3}\\d{1,3}/\\d{1,2}',
+    });
+
+    service.loadBalancer.listeners.forEach(l => {
+      l.connections.allowDefaultPortFrom(ec2.Peer.ipv4(accessCIDR.valueAsString));
     });
 
     const scaling = service.service.autoScaleTaskCount({ maxCapacity: 10, minCapacity: 1 });

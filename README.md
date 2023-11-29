@@ -1,8 +1,8 @@
-# Welcome to your CDK TypeScript project
+# R Shiny Apps on Fargate
 
-This is a blank project for CDK development with TypeScript.
+This stack demonstrates using CDK to deploy an R Shiny app behind an autoscaling application load balancer.
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+The approach is slightly naive, in that a separate loadbalancer is created for the single app.  This is not particularly cost-effective, and in reality you would place several apps behind a single application load balancer.
 
 ## Useful commands
 
