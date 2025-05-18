@@ -95,13 +95,6 @@ export class ShinyService extends Construct {
       {
         vpc: props.vpc,
         internetFacing: true,
-        vpcSubnets: {
-          subnetType: ec2.SubnetType.PUBLIC,
-          onePerAz: true,
-          availabilityZones: [props.vpc.availabilityZones[0]],
-        },
-        // Enable deletion protection for the load balancer
-        deletionProtection: true,
       }
     );
 
@@ -178,7 +171,7 @@ export class ShinyService extends Construct {
 
     // Create an output with the load balancer URL
     this.loadBalancerUrl = new cdk.CfnOutput(this, "LoadBalancerUrl", {
-      value: `http://${this.loadBalancer.loadBalancerDnsName}`,
+      value: `http://${this.loadBalancer.loadBalancerDnsName}/app1/`,
       description: "The URL of the load balancer",
       exportName: `${id}-LoadBalancerUrl`,
     });

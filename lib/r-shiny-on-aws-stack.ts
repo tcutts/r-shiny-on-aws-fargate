@@ -25,7 +25,7 @@ export class RShinyOnAwsStack extends cdk.Stack {
     super(scope, id, props);
 
     const vpc = new ec2.Vpc(this, "RShinyVpc", {
-      maxAzs: 2,
+      maxAzs: 3,
       natGateways: 1,
     });
 
