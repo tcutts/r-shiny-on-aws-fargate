@@ -8,7 +8,11 @@ export class RShinyOnAwsStack extends cdk.Stack {
   private createShinyTask(id: string, path: string): ecs.FargateTaskDefinition {
     const taskDefinition = new ecs.FargateTaskDefinition(
       this,
-      `RShinyTask-${id}`
+      `RShinyTask-${id}`,
+      {
+        cpu: 512,
+        memoryLimitMiB: 1024,
+      }
     );
     taskDefinition.addContainer("RShinyContainer", {
       image: ecs.ContainerImage.fromAsset(path),
@@ -21,7 +25,7 @@ export class RShinyOnAwsStack extends cdk.Stack {
     super(scope, id, props);
 
     const vpc = new ec2.Vpc(this, "RShinyVpc", {
-      maxAzs: 3,
+      maxAzs: 2,
       natGateways: 1,
     });
 

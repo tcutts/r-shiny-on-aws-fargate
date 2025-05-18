@@ -95,6 +95,13 @@ export class ShinyService extends Construct {
       {
         vpc: props.vpc,
         internetFacing: true,
+        vpcSubnets: {
+          subnetType: ec2.SubnetType.PUBLIC,
+          onePerAz: true,
+          availabilityZones: [props.vpc.availabilityZones[0]],
+        },
+        // Enable deletion protection for the load balancer
+        deletionProtection: true,
       }
     );
 
@@ -127,6 +134,12 @@ export class ShinyService extends Construct {
           cluster: props.cluster,
           taskDefinition: taskDef.taskDefinition,
           desiredCount: 1,
+          capacityProviderStrategies: [
+            {
+              capacityProvider: "FARGATE_SPOT",
+              weight: 1,
+            },
+          ],
         }
       );
 
@@ -150,8 +163,8 @@ export class ShinyService extends Construct {
 
       // Configure auto-scaling
       const scaling = service.autoScaleTaskCount({
-        maxCapacity: 10,
         minCapacity: 1,
+        maxCapacity: 5,
       });
 
       scaling.scaleOnCpuUtilization(`autoscale_cpu_${taskDef.pathPattern}`, {

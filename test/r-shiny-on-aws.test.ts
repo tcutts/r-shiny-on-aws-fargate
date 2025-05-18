@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { Template } from 'aws-cdk-lib/assertions';
+import { Template, Match } from 'aws-cdk-lib/assertions';
 import * as RShinyOnAws from '../lib/r-shiny-on-aws-stack';
 
 describe('RShinyOnAwsStack', () => {
@@ -30,6 +30,13 @@ describe('RShinyOnAwsStack', () => {
     template.resourceCountIs('AWS::ElasticLoadBalancingV2::LoadBalancer', 1);
     template.hasResourceProperties('AWS::ElasticLoadBalancingV2::LoadBalancer', {
       Scheme: 'internet-facing',
+      LoadBalancerAttributes: Match.arrayWith([
+        {
+          Key: 'deletion_protection.enabled',
+          Value: 'true'
+        }
+      ]),
+      Subnets: Match.arrayEquals([Match.anyValue()]), // Single AZ configuration
     });
   });
 
@@ -41,10 +48,16 @@ describe('RShinyOnAwsStack', () => {
     });
   });
 
-  test('Fargate Services Created', () => {
+  test('Fargate Services Created with Spot Capacity Provider', () => {
     template.resourceCountIs('AWS::ECS::Service', 2);
     template.hasResourceProperties('AWS::ECS::Service', {
-      LaunchType: 'FARGATE',
+      CapacityProviderStrategy: [
+        {
+          CapacityProvider: 'FARGATE_SPOT',
+          Weight: 1
+        }
+      ],
+      LaunchType: Match.absent(),
     });
   });
 
@@ -75,6 +88,11 @@ describe('RShinyOnAwsStack', () => {
   test('Auto Scaling Configuration Created', () => {
     template.resourceCountIs('AWS::ApplicationAutoScaling::ScalableTarget', 2);
     template.resourceCountIs('AWS::ApplicationAutoScaling::ScalingPolicy', 2);
+    
+    template.hasResourceProperties('AWS::ApplicationAutoScaling::ScalableTarget', {
+      MinCapacity: 1,
+      MaxCapacity: 5
+    });
   });
 
   test('Access CIDR Parameter Created', () => {
