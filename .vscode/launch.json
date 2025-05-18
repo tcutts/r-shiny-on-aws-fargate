@@ -1,0 +1,68 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug CDK Synthesis",
+      "program": "${workspaceRoot}/node_modules/aws-cdk/bin/cdk",
+      "args": [
+        "synth",
+        "--no-version-reporting"
+      ],
+      "cwd": "${workspaceRoot}",
+      "console": "integratedTerminal",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/**/*.js"
+      ],
+      "preLaunchTask": "npm: build",
+      "env": {
+        "AWS_REGION": "us-east-1"
+      }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug CDK Deploy",
+      "program": "${workspaceRoot}/node_modules/aws-cdk/bin/cdk",
+      "args": [
+        "deploy",
+        "--no-version-reporting",
+        "--require-approval", "never"
+      ],
+      "cwd": "${workspaceRoot}",
+      "console": "integratedTerminal",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/**/*.js"
+      ],
+      "preLaunchTask": "npm: build",
+      "env": {
+        "AWS_REGION": "us-east-1"
+      }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug CDK Tests",
+      "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
+      "args": [
+        "--runInBand"
+      ],
+      "cwd": "${workspaceRoot}",
+      "console": "integratedTerminal",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/**/*.js"
+      ],
+      "preLaunchTask": "npm: build"
+    }
+  ]
+}
